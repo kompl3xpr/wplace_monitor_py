@@ -5,7 +5,7 @@
 
 ## 安装
 ### Windows
-1. 从 [Release 页面](https://github.com/kompl3xpr/wplace_monitor_py/releases/latest) 下载最新版本的压缩包。
+1. 从 [Release 页面](https://github.com/kompl3xpr/wplace_monitor_py/releases/tag/0.1.0) 下载最新版本的压缩包。
 2. 解压到任意用户具有权限的文件夹。
 3. 运行 `.exe` 程序。
 
