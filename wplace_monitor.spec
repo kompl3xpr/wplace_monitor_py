@@ -2,7 +2,7 @@
 
 
 a = Analysis(
-    ['src\\monitor_gui.py'],
+    ['src/monitor_gui.py'],
     pathex=['.', 'src'],
     binaries=[],
     datas=[],
@@ -41,5 +41,5 @@ coll = COLLECT(
     strip=False,
     upx=True,
     upx_exclude=[],
-    name='wplace_monitor_gui',
+    name='wplace_monitor',
 )

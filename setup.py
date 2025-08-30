@@ -10,14 +10,14 @@ def main():
     print(f"当前脚本目录：{base_path}")
 
     # 定义 PyInstaller 的 spec 文件路径
-    spec_file = base_path / 'wplace_monitor_gui.spec'
+    spec_file = base_path / 'wplace_monitor.spec'
     if not spec_file.exists():
         print(f"错误: 找不到 {spec_file}。请确保文件存在。")
         sys.exit(1)
 
     # 定义要复制的源目录和目标目录
     source_dirs = [base_path / 'data', base_path / 'assets']
-    target_dist_dir = base_path / 'dist' / 'wplace_monitor_gui'
+    target_dist_dir = base_path / 'dist' / 'wplace_monitor'
 
 
     requirements_file = base_path / 'requirements.txt'
