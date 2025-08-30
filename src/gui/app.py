@@ -1,8 +1,8 @@
 from PyQt6.QtWidgets import *
 from PyQt6.QtCore import QTimer, QTime
-from PyQt6.QtGui import QAction
+from PyQt6.QtGui import QAction, QIcon
 
-from src.core import AreaManager, init_logger, logger, Settings
+from src.core import AreaManager, init_logger, logger, Settings, path_manager
 from src.gui.area_info_list import AreaInfoListItemWidget
 from src.gui.status_bar import AppStatusBar
 from src.gui.settings_dialog import SettingsDialog
@@ -19,6 +19,21 @@ class App(QMainWindow):
         self.init_ui()
 
     def init_ui(self):
+        # Tray Icon
+        self.tray_icon = QSystemTrayIcon(self)
+        self.tray_icon.setIcon(QIcon(path_manager.get("assets/icon.ico")))
+        tray_menu = QMenu()
+        show_action = QAction("显示窗口", self)
+        quit_action = QAction("退出", self)
+        show_action.triggered.connect(self.show_window)
+        quit_action.triggered.connect(self.quit_app)
+        tray_menu.addAction(show_action)
+        tray_menu.addAction(quit_action)
+        self.tray_icon.setContextMenu(tray_menu)
+        self.tray_icon.activated.connect(self.on_tray_icon_activated)
+        self.tray_icon.show()
+
+        # Toolbar
         toolbar = self.addToolBar("主工具栏")
 
         refresh_action = QAction("刷新", self)
@@ -168,3 +183,17 @@ class App(QMainWindow):
         for name in to_deleted:
             self.results.pop(name)
 
+    def closeEvent(self, event):
+        QMessageBox.warning(self, "注意", "点击关闭按钮会使应用最小化到托盘。")
+        event.ignore()
+        self.hide()
+
+    def show_window(self):
+        self.show()
+
+    def quit_app(self):
+        QApplication.quit()
+
+    def on_tray_icon_activated(self, reason):
+        if reason == QSystemTrayIcon.ActivationReason.Trigger:
+            self.show_window()
