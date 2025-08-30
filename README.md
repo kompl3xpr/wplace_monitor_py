@@ -87,7 +87,7 @@
 
 ## Q & A
 
-# Windows 如何设置 Wplace Monitor 开机自动在后台运行
+### Windows 如何设置 Wplace Monitor 开机自动在后台运行
 1. 键盘输入 Win + R 打开运行窗口。
 2. 在运行窗口的文本框内输入 `shell:startup` 并回车确定，打开 Windows 启动程序的目录。
 3. 为 `wplace_monitor.exe` 创建一份快捷方式，移动到该目录内。
