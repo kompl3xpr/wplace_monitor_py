@@ -9,6 +9,7 @@ from src.gui.settings_dialog import SettingsDialog
 from src.gui.threads import CheckThread
 from src.gui.notification import show_notification
 from src.gui.new_area_dialog import NewAreaDialog
+from src.gui.about_dialog import AboutDialog
 
 class App(QMainWindow):
     def __init__(self):
@@ -58,6 +59,19 @@ class App(QMainWindow):
         import_action = QAction("设置", self)
         import_action.triggered.connect(self.open_settings)
         toolbar.addAction(import_action)
+
+        about_action = QAction("关于", self)
+        about_action.triggered.connect(self.open_about_dialog)
+        toolbar.addAction(about_action)
+
+        hide_action = QAction("隐藏窗口", self)
+        hide_action.triggered.connect(self.hide)
+        toolbar.addAction(hide_action)
+
+        quit_action = QAction("退出", self)
+        quit_action.triggered.connect(self.confirm_quit_app)
+        toolbar.addAction(quit_action)
+        self.should_quit = False
 
         self.app_sbar = AppStatusBar(self)
         self.setStatusBar(self.app_sbar)
@@ -184,16 +198,49 @@ class App(QMainWindow):
             self.results.pop(name)
 
     def closeEvent(self, event):
-        QMessageBox.warning(self, "注意", "点击关闭按钮会使应用最小化到托盘。")
-        event.ignore()
-        self.hide()
+        if self.should_quit:
+            super().closeEvent(event)
+        else:
+            reply = QMessageBox.warning(
+                self,
+                '注意',
+                '应用将最小化到托盘。',
+                QMessageBox.StandardButton.Yes | QMessageBox.StandardButton.No,
+                QMessageBox.StandardButton.Yes
+            )
+            event.ignore()
+            if reply == QMessageBox.StandardButton.Yes:
+                self.hide()
 
     def show_window(self):
         self.show()
 
+    def confirm_quit_app(self):
+        reply = QMessageBox.question(
+            self,
+            '确认退出',
+            '您确定要退出程序吗？',
+            QMessageBox.StandardButton.Yes | QMessageBox.StandardButton.No,
+            QMessageBox.StandardButton.No
+        )
+        if reply == QMessageBox.StandardButton.Yes:
+            self.quit_app()
+
     def quit_app(self):
+        logger().info("正在退出程序...")
+        self.should_quit = True
         QApplication.quit()
 
     def on_tray_icon_activated(self, reason):
         if reason == QSystemTrayIcon.ActivationReason.Trigger:
             self.show_window()
+
+    def open_about_dialog(self):
+        dialog = AboutDialog(self)
+        dialog.exec()
+
+    def check_for_updates(self):
+        def _inner():
+            dialog = AboutDialog(self)
+            dialog.check_for_updates()
+        QTimer.singleShot(0, _inner)
