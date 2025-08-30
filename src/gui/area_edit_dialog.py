@@ -1,5 +1,7 @@
 from PyQt6.QtWidgets import *
+from PyQt6.QtCore import Qt
 from src.core import AreaManager
+from src.gui.mask_editor import MaskEditor
 
 class AreaEditDialog(QDialog):
     def __init__(self, parent, area: dict, result: dict):
@@ -39,13 +41,17 @@ class AreaEditDialog(QDialog):
 
         layout.addWidget(self.ignored_checkbox)
 
+        self.set_original_from_current_button = QPushButton("把当前状态设置为参考图")
+        self.set_original_from_current_button.clicked.connect(self.set_original_from_current)
+        layout.addWidget(self.set_original_from_current_button)
+
         self.import_original_button = QPushButton("导入参考图")
         self.import_original_button.clicked.connect(self.import_original_image)
         layout.addWidget(self.import_original_button)
 
-        self.set_original_from_current_button = QPushButton("把当前状态设置为参考图")
-        self.set_original_from_current_button.clicked.connect(self.set_original_from_current)
-        layout.addWidget(self.set_original_from_current_button)
+        self.edit_mask_button = QPushButton("编辑遮罩")
+        self.edit_mask_button.clicked.connect(self.edit_mask)
+        layout.addWidget(self.edit_mask_button)
 
         self.import_mask_button = QPushButton("导入遮罩")
         self.import_mask_button.clicked.connect(self.import_mask)
@@ -61,6 +67,11 @@ class AreaEditDialog(QDialog):
         layout.addWidget(self.save_button)
 
         self.setLayout(layout)
+
+    def edit_mask(self):
+        editor = MaskEditor(self, self.area['name'])
+        editor.setWindowModality(Qt.WindowModality.WindowModal)
+        editor.show()
 
     def import_mask(self):
         file_dialog = QFileDialog()

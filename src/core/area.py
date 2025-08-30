@@ -9,9 +9,6 @@ from PIL import Image
 from src.core.fs import path_manager
 from src.core.logging import logger
 
-orig_path = lambda n: path_manager.get(f"data/originals/{n}.png")
-mask_path = lambda n: path_manager.get(f"data/masks/{n}.png")
-
 async def fetch_current_image(area: dict):
     x = area["position"]["x"]
     y = area["position"]["y"]
@@ -80,8 +77,8 @@ class AreaManager:
         self._areas = [a for a in self._areas if a['name'] != name]
         self.save()
         try:
-            os.remove(mask_path(name))
-            os.remove(orig_path(name))
+            os.remove(path_manager.get_mask_image(name))
+            os.remove(path_manager.get_original_image(name))
         except Exception:
             pass
     
@@ -90,10 +87,10 @@ class AreaManager:
         area['name'] = new_name
         
         try:
-            if os.path.exists(mask_path(old_name)):
-                os.rename(mask_path(old_name), mask_path(new_name))
-            if os.path.exists(orig_path(old_name)):
-                os.rename(orig_path(old_name), orig_path(new_name))
+            if os.path.exists(path_manager.get_mask_image(old_name)):
+                os.rename(path_manager.get_mask_image(old_name), path_manager.get_mask_image(new_name))
+            if os.path.exists(path_manager.get_original_image(old_name)):
+                os.rename(path_manager.get_original_image(old_name), path_manager.get_original_image(new_name))
         except Exception as e:
             print(f"failed to rename data file: {e}")
 
@@ -111,13 +108,13 @@ class AreaManager:
         if mask is not None:
             if type(mask) == str:
                 try:
-                    shutil.copy(mask, mask_path(area_name))
+                    shutil.copy(mask, path_manager.get_mask_image(area_name))
                 except Exception as e:
                     logger().error(f"无法复制遮罩文件: {e}")
             else:
                 mask: Image.Image = mask
                 try:
-                    mask.save(mask_path(area_name))
+                    mask.save(path_manager.get_mask_image(area_name))
                 except Exception as e:
                     logger().error(f"无法保存遮罩文件: {e}")  
 
@@ -126,12 +123,12 @@ class AreaManager:
         if original is not None:
             if type(original) == str:
                 try:
-                    shutil.copy(original, orig_path(area_name))
+                    shutil.copy(original, path_manager.get_original_image(area_name))
                 except Exception as e:
                     logger().error(f"无法复制参考图文件: {e}")
             else:
                 original: Image.Image = original
                 try:
-                    original.save(orig_path(area_name))
+                    original.save(path_manager.get_original_image(area_name))
                 except Exception as e:
                     logger().error(f"无法保存参考图文件: {e}")  

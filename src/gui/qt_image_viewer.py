@@ -123,10 +123,10 @@ class QtImageViewer(QGraphicsView):
         # Interactions (set buttons to None to disable interactions)
         # !!! Events handled by interactions will NOT emit *MouseButton* signals.
         #     Note: regionZoomButton will still emit a *MouseButtonReleased signal on a click (i.e. tiny box).
-        self.regionZoomButton = Qt.MouseButton.LeftButton  # Drag a zoom box.
+        self.regionZoomButton = Qt.MouseButton.MiddleButton  # Drag a zoom box.
         self.zoomOutButton = Qt.MouseButton.RightButton  # Pop end of zoom stack (double click clears zoom stack).
-        self.panButton = Qt.MouseButton.MiddleButton  # Drag to pan.
-        self.wheelZoomFactor = 1.25  # Set to None or 1 to disable mouse wheel zoom.
+        self.panButton = Qt.MouseButton.LeftButton  # Drag to pan.
+        self.wheelZoomFactor = 0.75  # Set to None or 1 to disable mouse wheel zoom.
 
         # Stack of QRectF zoom boxes in scene coordinates.
         # !!! If you update this manually, be sure to call updateViewer() to reflect any changes.
@@ -153,7 +153,6 @@ class QtImageViewer(QGraphicsView):
 
 
     def move(self, x: int, y: int):
-
         target_rect = QRectF(max(0, x - 4.5), max(0, y - 4.5), 10.0, 10.0)
         self.zoomStack.append(target_rect)
         self.updateViewer()

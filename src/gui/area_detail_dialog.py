@@ -124,6 +124,11 @@ class AreaDetailDialog(QDialog):
         self.check_action.setEnabled(False)
         self.thread.start()
         self.progress = QProgressDialog( "正在检查中，请稍等...", None, 0, 0, self)
+        self.progress.setWindowFlags(
+            self.progress.windowFlags() & ~Qt.WindowType.WindowCloseButtonHint
+        )
+        self.progress.setWindowModality(Qt.WindowModality.WindowModal)
+        
         self.progress.setWindowTitle("检查中")
         self.progress.setCancelButton(None)
         self.progress.show()
@@ -136,7 +141,7 @@ class AreaDetailDialog(QDialog):
             self.reset_sidebar()
             self.checked.emit(self.result)
         else:
-            QMessageBox.warning(self, "检查失败")
+            QMessageBox.warning(self, "检查失败", "网络异常或该区域被设置为无视")
             
         self.progress.close()
         self.check_action.setEnabled(True)

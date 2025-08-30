@@ -25,11 +25,11 @@ class App(QMainWindow):
         refresh_action.triggered.connect(self.update_list)
         toolbar.addAction(refresh_action)
 
-        self.check_action = QAction("检查", self)
+        self.check_action = QAction("检查全部", self)
         self.check_action.triggered.connect(self.check_areas)
         toolbar.addAction(self.check_action)
 
-        self.is_checking = False
+        self.set_checking(False)
         self.auto_check_enabled = Settings().auto_check_enabled
         text = "关闭自动检查" if self.auto_check_enabled else "开启自动检查"
         self.auto_check_action = QAction(text, self)
@@ -63,6 +63,10 @@ class App(QMainWindow):
 
         self.update_list()
 
+    def set_checking(self, is_checking: bool):
+        self.is_checking = is_checking
+        self.setEnabled(not is_checking)
+
     def _start_auto_check_timer(self):
         self.start_check_time = QTime.currentTime()
         self.check_timer.start(Settings().check_interval_ms)
@@ -77,7 +81,6 @@ class App(QMainWindow):
             self.auto_check_enabled = True
             self.auto_check_action.setText('关闭自动检查')
         self.set_next_update()
-
 
     def set_next_update(self):
         if self.is_checking:
@@ -117,15 +120,13 @@ class App(QMainWindow):
             self.update_list_with_new_results(results)
             if self.auto_check_enabled:
                 self._start_auto_check_timer()
-            self.is_checking = False
-            self.check_action.setEnabled(True)
+            self.set_checking(False)
             logger().info('所有区域已检查完毕')
             self.send_notification()
 
         self.check_area_thread = CheckThread(AreaManager().areas)
         self.check_area_thread.finished.connect(_slot)
-        self.is_checking = True
-        self.check_action.setEnabled(False)
+        self.set_checking(True)
         self.check_area_thread.start()
 
     def send_notification(self):

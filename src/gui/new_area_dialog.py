@@ -6,7 +6,7 @@ class NewAreaDialog(QDialog):
     def __init__(self, parent=None):
         super().__init__(parent)
         self.setWindowTitle('添加新的受保护区域')
-        self.setFixedSize(400, 200)
+        self.setFixedSize(500, 200)
 
         # 布局
         main_layout = QVBoxLayout(self)

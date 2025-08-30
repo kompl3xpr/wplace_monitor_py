@@ -5,9 +5,6 @@ import sys
 from pathlib import Path
 
 def main():
-    """
-    运行 PyInstaller 并将 data 和 assets 文件夹复制到 dist 目录。
-    """
     # 获取脚本所在的目录，作为基准路径
     base_path = Path(__file__).resolve().parent
     print(f"当前脚本目录：{base_path}")
@@ -21,6 +18,23 @@ def main():
     # 定义要复制的源目录和目标目录
     source_dirs = [base_path / 'data', base_path / 'assets']
     target_dist_dir = base_path / 'dist' / 'wplace_monitor_gui'
+
+
+    requirements_file = base_path / 'requirements.txt'
+    if requirements_file.exists():
+        print("---")
+        print("正在安装依赖...")
+        try:
+            subprocess.run(
+                [sys.executable, '-m', 'pip', 'install', '-r', str(requirements_file)],
+                check=True
+            )
+            print("依赖安装成功！")
+        except subprocess.CalledProcessError:
+            print("错误: 依赖安装失败。请检查 requirements.txt 文件和网络连接。")
+            sys.exit(1)
+    else:
+        print("警告: 找不到 requirements.txt 文件，跳过依赖安装。")
 
     print("---")
     print("正在启动 PyInstaller 构建...")

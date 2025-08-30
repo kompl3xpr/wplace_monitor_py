@@ -1,6 +1,6 @@
 [[areas]]
 name = "teoswan_ancap_area"
-last_check_date = 2025-08-30 04:55:02.775419+00:00
+last_check_date = 2025-08-30 07:51:48.693499+00:00
 ignored = false
 
 [areas.position]
@@ -9,7 +9,7 @@ y = 888
 
 [[areas]]
 name = "beagle_duodong_head"
-last_check_date = 2025-08-30 05:28:44.638941+00:00
+last_check_date = 2025-08-30 08:23:02.407409+00:00
 ignored = false
 
 [areas.position]
