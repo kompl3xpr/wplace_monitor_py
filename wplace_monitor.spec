@@ -21,7 +21,7 @@ exe = EXE(
     a.scripts,
     [],
     exclude_binaries=True,
-    name='wplace_monitor_gui',
+    name='wplace_monitor',
     debug=False,
     bootloader_ignore_signals=False,
     strip=False,
