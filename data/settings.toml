@@ -1,5 +1,5 @@
 check_interval_ms = 600000
 wait_for_next_area_ms = 5000
-check_area_when_boot = false
-auto_check_enabled = false
+check_area_when_boot = true
+auto_check_enabled = true
 notification_volume = 50

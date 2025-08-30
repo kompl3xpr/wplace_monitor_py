@@ -86,18 +86,10 @@ class AreaEditDialog(QDialog):
             self.new_original = file_path
 
     def set_original_from_current(self):
-        # if position or name changed, avoid fetching
-        if self.position_x_input.value() != self.area['position']['x'] or self.position_y_input.value() != self.area['position']['y']:
-            QMessageBox.warning(self, "位置已更改", "位置已更改，无法用当前图片设为参考图。请先保存更改。")
-            return
-        if self.name_input.text() != self.area['name']:
-            QMessageBox.warning(self, "名称已更改", "名称已更改，无法用当前图片设为参考图。请先保存更改。")
-            return
         if self.result is None:
             QMessageBox.warning(self, "无法获取当前图片", "请先检查一遍，以获取当前图片。")
             return
 
-        # fetch current image and set as original
         self.new_original = self.result['current_image']
 
     def remove_area(self):
