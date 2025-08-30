@@ -123,8 +123,8 @@ class QtImageViewer(QGraphicsView):
         # Interactions (set buttons to None to disable interactions)
         # !!! Events handled by interactions will NOT emit *MouseButton* signals.
         #     Note: regionZoomButton will still emit a *MouseButtonReleased signal on a click (i.e. tiny box).
-        self.regionZoomButton = Qt.MouseButton.MiddleButton  # Drag a zoom box.
-        self.zoomOutButton = Qt.MouseButton.RightButton  # Pop end of zoom stack (double click clears zoom stack).
+        self.regionZoomButton = Qt.MouseButton.RightButton  # Drag a zoom box.
+        self.zoomOutButton = Qt.MouseButton.MiddleButton  # Pop end of zoom stack (double click clears zoom stack).
         self.panButton = Qt.MouseButton.LeftButton  # Drag to pan.
         self.wheelZoomFactor = 0.75  # Set to None or 1 to disable mouse wheel zoom.
 

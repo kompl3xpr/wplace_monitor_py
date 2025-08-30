@@ -46,21 +46,49 @@ def compute_differences(
         current_image: Image.Image,
         mask_image: Image.Image
 ) -> list[Diff]:
-    logger().info(f'正在检查异常...')
-    diffs = []
-    width, height = area_image.size
+# 1. 将 PIL 图像转换为 NumPy 数组
+    arr_area = np.array(area_image)
+    arr_current = np.array(current_image)
+    arr_mask = np.array(mask_image)
 
-    for x in range(width):
-        for y in range(height):
-            if mask_image.getpixel((x, y)) == 0:  # Assuming mask is binary (0 or 255)
-                continue
-            if area_image.getpixel((x, y)) != current_image.getpixel((x, y)):
-                diffs.append(Diff(x, y, area_image.getpixel((x, y)), current_image.getpixel((x, y))))
+    # 2. 创建一个布尔掩码
+    # 遮罩的非零像素
+    valid_mask = arr_mask != 0
+
+    # 比较原始图像和当前图像，找出差异点
+    # '!=' 比较的是整个 RGBA 像素，返回一个 (H, W, 4) 的布尔数组
+    # 'any(axis=2)' 检查每个像素的 RGBA 值是否至少有一个不同
+    diff_mask = (arr_area != arr_current).any(axis=2)
+
+    # 3. 结合两个掩码，找出既在遮罩内又有差异的像素
+    # 这里的 & 是按位与操作，它将两个布尔数组的真值结合起来
+    final_mask = valid_mask & diff_mask
+
+    # 4. 使用 np.where 获取所有符合条件的像素的坐标
+    # np.where 返回一个元组，包含所有真值点的行和列索引
+    diff_coords_y, diff_coords_x = np.where(final_mask)
+
+    # 5. 提取差异点的原始像素值和当前像素值
+    # 使用高级索引一次性获取所有差异点的像素数据
+    original_pixels = arr_area[diff_coords_y, diff_coords_x]
+    current_pixels = arr_current[diff_coords_y, diff_coords_x]
+
+    # 6. 将结果转换为 Diff 命名元组的列表
+    # 使用 zip 将坐标和像素数据打包，然后用列表推导式创建 Diff 对象
+    diffs = [
+        Diff(x, y, tuple(original), tuple(current))
+        for x, y, original, current in zip(
+            diff_coords_x,
+            diff_coords_y,
+            original_pixels,
+            current_pixels
+        )
+    ]
+
     return diffs
 
 
 def draw_differences(mask_image: Image.Image, diffs: list[Diff]):
-    logger().info(f'正在绘制结果展示图...')
     highlight_color = (255, 0, 0, 255)
 
     diff_image = mask_image.convert("RGBA")
@@ -69,11 +97,11 @@ def draw_differences(mask_image: Image.Image, diffs: list[Diff]):
     arr[mask] = (255, 255, 255) + (210,)
     mask = (arr[:, :, :3] == (0, 0, 0)).all(axis=2)
     arr[mask] = (0, 0, 0) + (210,)
-    diff_image = Image.fromarray(arr)
 
-    for diff in diffs:
-        diff_image.putpixel((diff.x, diff.y), highlight_color)
-    return diff_image
+    coords = np.array([(d.x, d.y) for d in diffs])
+    if coords.size > 0:
+        arr[coords[:, 1], coords[:, 0]] = highlight_color
+    return Image.fromarray(arr)
 
 async def monitor_all(areas: list[dict]):
     results = {}
@@ -103,7 +131,10 @@ async def _monitor_one(fetcher: CurrentImageFetcher, area: dict) -> dict:
     
     original_image = get_original_image(area)
     mask_image = get_mask_image(area)
+
+    logger().info(f'正在检查异常...')
     diffs = compute_differences(original_image, current_image, mask_image)
+    logger().info(f'正在生成结果展示图...')
     diff_image = draw_differences(mask_image, diffs)
     result = {
         "diffs": diffs,

@@ -1,6 +1,6 @@
 [[areas]]
 name = "teoswan_ancap_area"
-last_check_date = 2025-08-30 07:51:48.693499+00:00
+last_check_date = 2025-08-30 09:43:52.451095+00:00
 ignored = false
 
 [areas.position]
@@ -9,7 +9,7 @@ y = 888
 
 [[areas]]
 name = "beagle_duodong_head"
-last_check_date = 2025-08-30 08:23:02.407409+00:00
+last_check_date = 2025-08-30 09:43:57.594714+00:00
 ignored = false
 
 [areas.position]
@@ -18,8 +18,8 @@ y = 888
 
 [[areas]]
 name = "lca_banner_0"
-last_check_date = 2025-08-29 19:09:28.796981+00:00
-ignored = true
+last_check_date = 2025-08-30 09:43:57.713580+00:00
+ignored = false
 
 [areas.position]
 x = 1687

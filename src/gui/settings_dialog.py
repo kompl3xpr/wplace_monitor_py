@@ -1,4 +1,5 @@
 from PyQt6.QtWidgets import *
+from PyQt6.QtCore import Qt
 from src.core import Settings
 
 class SettingsDialog(QDialog):
@@ -32,6 +33,18 @@ class SettingsDialog(QDialog):
         self.check_on_boot_checkbox = QCheckBox("启动时立即检查")
         self.auto_check_enabled_checkbox = QCheckBox("默认开启自动检查")
 
+        notification_volume = QHBoxLayout()
+        notification_volume_label = QLabel("通知音量:")
+        self.notification_volume_slider = QSlider(Qt.Orientation.Horizontal)
+        self.notification_volume_slider.setMinimum(0)
+        self.notification_volume_slider.setMaximum(100)
+        self.notification_volume_slider.valueChanged.connect(self.set_notification_volume)
+        self.notification_volume_value_label = QLabel("100%")
+
+        notification_volume.addWidget(notification_volume_label)
+        notification_volume.addWidget(self.notification_volume_slider)
+        notification_volume.addWidget(self.notification_volume_value_label)
+
         # 保存和取消按钮
         button_layout = QHBoxLayout()
         save_button = QPushButton("保存")
@@ -47,9 +60,11 @@ class SettingsDialog(QDialog):
         self.wait_for_next_area_edit.setText(str(settings.wait_for_next_area_ms))
         self.check_on_boot_checkbox.setChecked(settings.check_area_when_boot)
         self.auto_check_enabled_checkbox.setChecked(settings.auto_check_enabled)
-        
+        self.notification_volume_slider.setValue(settings.notification_volume)
+
         main_layout.addLayout(check_layout)
         main_layout.addLayout(wait_layout)
+        main_layout.addLayout(notification_volume)
         main_layout.addWidget(self.check_on_boot_checkbox)
         main_layout.addWidget(self.auto_check_enabled_checkbox)
         main_layout.addLayout(button_layout)
@@ -73,8 +88,12 @@ class SettingsDialog(QDialog):
                 settings.wait_for_next_area_ms = int(self.wait_for_next_area_edit.text())
                 settings.check_area_when_boot = self.check_on_boot_checkbox.isChecked()
                 settings.auto_check_enabled = self.auto_check_enabled_checkbox.isChecked()
+                settings.notification_volume = self.notification_volume_slider.value()
 
                 settings.save()
                 self.accept()
             except ValueError:
                 QMessageBox.warning(self, "输入错误", "请输入有效的数字！")
+
+    def set_notification_volume(self, value):
+        self.notification_volume_value_label.setText(f"{value}%")

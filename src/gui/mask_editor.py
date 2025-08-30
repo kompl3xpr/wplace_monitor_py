@@ -13,7 +13,7 @@ class MaskEditor(QMainWindow):
         super().__init__(parent)
         self.setWindowTitle("Mask Editor")
         self.setGeometry(100, 100, 1200, 800)
-        
+
         self.image_size = (1000, 1000)
         self.current_image = QImage(self.image_size[0], self.image_size[1], QImage.Format.Format_ARGB32_Premultiplied)
         self.current_image.fill(Qt.GlobalColor.white) # Initialize with a white background
@@ -121,7 +121,7 @@ class MaskEditor(QMainWindow):
         self.canvas_label.mousePressEvent = self.mouse_press
         self.canvas_label.mouseMoveEvent = self.mouse_move
         self.canvas_label.mouseReleaseEvent = self.mouse_release
-        
+
         # Wrap the canvas in a QScrollArea
         self.scroll_area = QScrollArea()
         self.scroll_area.setBackgroundRole(QPalette.ColorRole.Dark)
@@ -169,11 +169,36 @@ class MaskEditor(QMainWindow):
 
     def set_scale_factor(self, value):
         """
-        Set the scale factor based on the slider value.
+        Set the scale factor based on the slider value and zoom to the center.
         """
+        # Save the old scale factor to calculate the ratio
+        old_scale_factor = self.scale_factor
+
         self.scale_factor = value / 100.0
         self.scale_value_label.setText(f"{value}%")
+
+        # Get the current scroll bar positions
+        old_h_scroll = self.scroll_area.horizontalScrollBar().value()
+        old_v_scroll = self.scroll_area.verticalScrollBar().value()
+        
+        # Get the current scroll area viewport size
+        viewport_width = self.scroll_area.viewport().width()
+        viewport_height = self.scroll_area.viewport().height()
+
+        # Calculate the center point in the old image coordinates
+        old_center_x = (old_h_scroll + viewport_width / 2) / old_scale_factor
+        old_center_y = (old_v_scroll + viewport_height / 2) / old_scale_factor
+
+        # Update the canvas to reflect the new scale factor
         self.update_canvas()
+
+        # Calculate the new scroll bar positions to keep the center point
+        new_h_scroll = old_center_x * self.scale_factor - viewport_width / 2
+        new_v_scroll = old_center_y * self.scale_factor - viewport_height / 2
+
+        # Set the new scroll bar positions
+        self.scroll_area.horizontalScrollBar().setValue(int(new_h_scroll))
+        self.scroll_area.verticalScrollBar().setValue(int(new_v_scroll))
 
     def open_background_image(self):
         file_name = path_manager.get_original_image(self.area_name)
@@ -242,7 +267,8 @@ class MaskEditor(QMainWindow):
             self.last_point = pos_on_image
 
     def mouse_release(self, event):
-        self.last_point = QPoint()
+        if event.button() == Qt.MouseButton.LeftButton:
+            self.last_point = QPoint()
 
     def draw_point(self, pos):
         """

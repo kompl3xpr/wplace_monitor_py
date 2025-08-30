@@ -41,12 +41,15 @@ class AreaDetailDialog(QDialog):
             self.diff_label.setText(f"待检查")
             return
         
-        self.diff_label.setText(f"找到 {len(self.result["diffs"])} 个异常像素:")
-        for diff in self.result["diffs"]:
+        msg = f"找到 {len(self.result["diffs"])} 个异常像素"
+        for i, diff in enumerate(self.result["diffs"]):
+            if i >= 100:
+                msg += "(仅显示100个)"
+                break
             x, y, orig, curr = diff
 
             item_widget = QLabel(self.list_widget)
-            item_widget.setStyleSheet('QLabel { font-size: 13px }')
+            item_widget.setStyleSheet('QLabel { font-size: 20px }')
             item_widget.setText(f"({x}, {y}): \n{name_of_color(orig)} -> {name_of_color(curr)}\n")
             list_item = QListWidgetItem(self.list_widget)
             list_item.setData(Qt.ItemDataRole.UserRole, diff)
@@ -55,9 +58,11 @@ class AreaDetailDialog(QDialog):
             self.list_widget.addItem(list_item)
             self.list_widget.setItemWidget(list_item, item_widget)
 
+        self.diff_label.setText(msg)
+
     def init_ui(self):
         self.setWindowTitle(f"区域详情: {self.area_name}")
-        self.setGeometry(200, 200, 800, 600)
+        self.setGeometry(200, 200, 1200, 900)
         layout = QVBoxLayout()
 
         toolbar = QToolBar(self)

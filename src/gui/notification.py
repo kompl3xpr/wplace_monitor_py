@@ -3,7 +3,7 @@ from PyQt6.QtWidgets import QApplication, QWidget, QVBoxLayout, QLabel
 from PyQt6.QtCore import Qt, QTimer, QPropertyAnimation, QEasingCurve, QUrl
 from PyQt6.QtGui import QFont, QColor, QGuiApplication
 from PyQt6.QtMultimedia import QMediaPlayer, QAudioOutput
-from src.core import path_manager
+from src.core import path_manager, Settings
 
 class NotificationWindow(QWidget):
     def __init__(self, title, message):
@@ -96,5 +96,5 @@ def play_notification_sound():
     audio_output_ref = QAudioOutput()
     player_ref.setAudioOutput(audio_output_ref)
     player_ref.setSource(QUrl.fromLocalFile(path_manager.get('assets/notification.mp3')))
-    audio_output_ref.setVolume(0.5)
+    audio_output_ref.setVolume(Settings().notification_volume / 100)
     player_ref.play()
