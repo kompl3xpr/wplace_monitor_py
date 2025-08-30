@@ -83,3 +83,21 @@
 ### 异常通知
 
 手动检查或自动检查时，若发现遮罩区域存在异常像素时，系统会在右下角弹出通知并播放声音（可设置音量）。若一切正常，则不会有任何提醒。
+
+
+## Q & A
+
+# Windows 如何设置 Wplace Monitor 开机自动在后台运行
+1. 键盘输入 Win + R 打开运行窗口。
+2. 在运行窗口的文本框内输入 `shell:startup` 并回车确定，打开 Windows 启动程序的目录。
+3. 为 `wplace_monitor.exe` 创建一份快捷方式，移动到该目录内。
+4. 右键快捷方式，选择 **「属性」**，在 **「目标」**字段的末尾添加 `-hide`。
+
+   例如，如果「目标」字段的值原来是：
+
+   `"C:\Program  Files\WplaceMonitor\wplace_monitor.exe"`
+
+   修改后就会变为：
+
+   `"C:\Program Files\WplaceMonitor\wplace_monitor.exe" -hide`
+5. 完成上述所有步骤后，每次重启系统，程序都会自动在后台运行。
