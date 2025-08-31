@@ -71,7 +71,9 @@ class NotificationWindow(QWidget):
         self.animation.setStartValue(0.0)
         self.animation.setEndValue(1.0)
         self.animation.start()
-        self.animation.finished.connect(lambda: self.fade_out_timer.start(5000)) # 5秒后开始渐出
+        self.animation.finished.connect(
+            lambda: self.fade_out_timer.start(settings().notification.window_duration_ms)
+        ) # 5秒后开始渐出
         
     def start_fade_out(self):
         self.animation.setStartValue(1.0)
@@ -79,8 +81,8 @@ class NotificationWindow(QWidget):
         self.animation.start()
         self.animation.finished.connect(self.close)
 
-    # def mousePressEvent(self, event):
-    #     self.close()
+    def mousePressEvent(self, event):
+        self.close()
 
 def show_notification(title, message):
     global notification_win

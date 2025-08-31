@@ -159,7 +159,7 @@ class AboutDialog(QDialog):
         self.updater_thread.finished.connect(self._exec_updater)
         self.updater_thread.start()
 
-        self.progress = QProgressDialog( "正在更新程序，请稍等...", None, 0, 0, self)
+        self.progress = QProgressDialog( "正在更新程序，完成后将会自动重启...", None, 0, 0, self)
         self.progress.setWindowFlags(
             self.progress.windowFlags() & ~Qt.WindowType.WindowCloseButtonHint
         )
@@ -226,7 +226,6 @@ start "" "{current_dir}\\wplace_monitor.exe" -migrate-from {self.latest_version_
 
 REM remove this script
 del "{script_path}"
-pause
 """
         with open(script_path, 'w') as f:
             f.write(script_content)

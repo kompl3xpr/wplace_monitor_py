@@ -1,8 +1,12 @@
+[application]
+auto_check_for_updates = true
+
 [checker]
 interval_ms = 600000
-wait_req_ms = 5000
-at_startup = true
-auto = true
+wait_req_ms = 3000
+at_startup = false
+auto = false
 
 [notification]
-volume = 50
+volume = 75
+window_duration_ms = 600000

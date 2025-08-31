@@ -6,6 +6,9 @@ from src.core.logging import logger
 from src.core.fs import app_path
 from dataclasses import dataclass, asdict, field
 
+@dataclass
+class ApplicationSettings:
+    auto_check_for_updates: bool = True
 
 
 @dataclass
@@ -18,11 +21,14 @@ class CheckerSettings:
 @dataclass
 class NotificationSettings:
     volume: int = 50
+    window_duration_ms: int = 40000
 
 @dataclass
 class Settings:
+    application: ApplicationSettings = field(default_factory=ApplicationSettings)
     checker: CheckerSettings = field(default_factory=CheckerSettings)
     notification: NotificationSettings = field(default_factory=NotificationSettings)
+
 
     @classmethod
     def load(cls) -> 'Settings':

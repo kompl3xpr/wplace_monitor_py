@@ -7,45 +7,111 @@ class SettingsDialog(QDialog):
         super().__init__(parent)
         self.init_ui()
 
+    def add_group_label(self, layout, text):
+        label = QLabel(f"【{text}】")
+        label.setStyleSheet('QLabel { font-size: 25px; font-weight: bold;}')
+        layout.addWidget(label)
+
+    def add_group_end(self, layout):
+        line = QFrame(self)
+        line.setFrameShape(QFrame.Shape.HLine)
+        line.setLineWidth(2)
+        layout.addWidget(line)
+
     def init_ui(self):
         self.setWindowTitle("设置")
-        self.setGeometry(150, 150, 500, 200) # 调整窗口大小以容纳更多控件
-        
+        self.setBaseSize(100, 100)
+
         main_layout = QVBoxLayout()
+        self.add_application_options(main_layout)
+        self.add_checker_options(main_layout)
+        self.add_notification_options(main_layout)
+        self.add_buttons(main_layout)
+        self.setLayout(main_layout)
 
-        # check_interval_ms
+
+    def add_application_options(self, layout):
+        self.add_group_label(layout, "应用")
+
+        self.auto_check_for_updates_checkbox = QCheckBox("启动时自动检查版本更新")
+        self.auto_check_for_updates_checkbox.setChecked(settings().application.auto_check_for_updates)
+        layout.addWidget(self.auto_check_for_updates_checkbox)
+
+        self.add_group_end(layout)
+
+
+    def add_checker_options(self, layout):
+        self.add_group_label(layout, "检查")
+
         check_layout = QHBoxLayout()
-        check_label = QLabel("总刷新间隔 (毫秒):")
-        self.check_interval_edit = QLineEdit()
-        self.check_interval_edit.setPlaceholderText("例如: 300000")
-        check_layout.addWidget(check_label)
-        check_layout.addWidget(self.check_interval_edit)
+        check_label1 = QLabel("每隔")
+        self.check_interval_spinbox = QSpinBox()
+        self.check_interval_spinbox.setRange(60000, 86400000)
+        check_label2 = QLabel("毫秒自动检查所有区域")
+        check_layout.addWidget(check_label1)
+        check_layout.addWidget(self.check_interval_spinbox)
+        check_layout.addWidget(check_label2)
+        self.check_interval_spinbox.setValue(settings().checker.interval_ms)
+        layout.addLayout(check_layout)
         
-        # wait_req_ms
         wait_layout = QHBoxLayout()
-        wait_label = QLabel("网络请求间隔 (毫秒, 过小会 ban IP):")
-        self.wait_for_next_area_edit = QLineEdit()
-        self.wait_for_next_area_edit.setPlaceholderText("例如: 5000")
-        wait_layout.addWidget(wait_label)
-        wait_layout.addWidget(self.wait_for_next_area_edit)
+        wait_label1 = QLabel("每隔")
+        self.wait_for_next_area_spinbox = QSpinBox()
+        self.wait_for_next_area_spinbox.setRange(3000, 60000)
+        wait_label2 = QLabel("毫秒进行一次网络请求")
+        wait_layout.addWidget(wait_label1)
+        wait_layout.addWidget(self.wait_for_next_area_spinbox)
+        wait_layout.addWidget(wait_label2)
+        self.wait_for_next_area_spinbox.setValue(settings().checker.wait_req_ms)
+        layout.addLayout(wait_layout)
 
-        # at_startup
         self.check_on_boot_checkbox = QCheckBox("启动时立即检查")
+        self.check_on_boot_checkbox.setChecked(settings().checker.at_startup)
+        layout.addWidget(self.check_on_boot_checkbox)
+
         self.auto_check_enabled_checkbox = QCheckBox("默认开启自动检查")
+        self.auto_check_enabled_checkbox.setChecked(settings().checker.auto)
+        layout.addWidget(self.auto_check_enabled_checkbox)
+
+        self.add_group_end(layout)
+
+
+    def add_notification_options(self, layout):
+        self.add_group_label(layout, "通知")
 
         notification_volume = QHBoxLayout()
         notification_volume_label = QLabel("通知音量:")
         self.notification_volume_slider = QSlider(Qt.Orientation.Horizontal)
         self.notification_volume_slider.setMinimum(0)
         self.notification_volume_slider.setMaximum(100)
-        self.notification_volume_slider.valueChanged.connect(self.set_notification_volume)
+        self.notification_volume_slider.valueChanged.connect(
+            lambda v: self.notification_volume_value_label.setText(f"{v}%")
+        )
         self.notification_volume_value_label = QLabel("100%")
 
         notification_volume.addWidget(notification_volume_label)
         notification_volume.addWidget(self.notification_volume_slider)
         notification_volume.addWidget(self.notification_volume_value_label)
+        self.notification_volume_slider.setValue(settings().notification.volume)
 
-        # 保存和取消按钮
+
+        notiwin_duration = QHBoxLayout()
+        notiwin_duration_label1 = QLabel("通知弹窗消失时间:")
+        self.notiwin_duration_spinbox = QSpinBox(self)
+        self.notiwin_duration_spinbox.setRange(0, 86400000)
+        self.notiwin_duration_spinbox.setValue(settings().notification.window_duration_ms)
+        notiwin_duration_label2 = QLabel("毫秒")
+        notiwin_duration.addWidget(notiwin_duration_label1)
+        notiwin_duration.addWidget(self.notiwin_duration_spinbox)
+        notiwin_duration.addWidget(notiwin_duration_label2)
+
+        layout.addLayout(notification_volume)
+        layout.addLayout(notiwin_duration)
+
+        self.add_group_end(layout)
+
+
+    def add_buttons(self, layout):
         button_layout = QHBoxLayout()
         save_button = QPushButton("保存")
         cancel_button = QPushButton("取消")
@@ -54,21 +120,8 @@ class SettingsDialog(QDialog):
         button_layout.addWidget(save_button)
         button_layout.addWidget(cancel_button)
 
-        # 加载初始值
-        self.check_interval_edit.setText(str(settings().checker.interval_ms))
-        self.wait_for_next_area_edit.setText(str(settings().checker.wait_req_ms))
-        self.check_on_boot_checkbox.setChecked(settings().checker.at_startup)
-        self.auto_check_enabled_checkbox.setChecked(settings().checker.auto)
-        self.notification_volume_slider.setValue(settings().notification.volume)
+        layout.addLayout(button_layout)
 
-        main_layout.addLayout(check_layout)
-        main_layout.addLayout(wait_layout)
-        main_layout.addLayout(notification_volume)
-        main_layout.addWidget(self.check_on_boot_checkbox)
-        main_layout.addWidget(self.auto_check_enabled_checkbox)
-        main_layout.addLayout(button_layout)
-        
-        self.setLayout(main_layout)
 
     def save(self):
         reply = QMessageBox.question(
@@ -82,16 +135,17 @@ class SettingsDialog(QDialog):
         if reply == QMessageBox.StandardButton.Yes:
             # 从UI控件中获取值并保存
             try:
-                settings().checker.interval_ms = int(self.check_interval_edit.text())
-                settings().checker.wait_req_ms = int(self.wait_for_next_area_edit.text())
+                settings().application.auto_check_for_updates = self.auto_check_for_updates_checkbox.isChecked()
+
+                settings().checker.interval_ms = self.check_interval_spinbox.value()
+                settings().checker.wait_req_ms = self.wait_for_next_area_spinbox.value()
                 settings().checker.at_startup = self.check_on_boot_checkbox.isChecked()
                 settings().checker.auto = self.auto_check_enabled_checkbox.isChecked()
+
                 settings().notification.volume = self.notification_volume_slider.value()
+                settings().notification.window_duration_ms = self.notiwin_duration_spinbox.value()
 
                 settings().save()
                 self.accept()
             except ValueError:
                 QMessageBox.warning(self, "输入错误", "请输入有效的数字！")
-
-    def set_notification_volume(self, value):
-        self.notification_volume_value_label.setText(f"{value}%")
