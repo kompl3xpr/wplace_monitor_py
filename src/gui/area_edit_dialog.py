@@ -89,7 +89,8 @@ class AreaEditDialog(QDialog):
         if self.result is None:
             QMessageBox.warning(self, "无法获取当前图片", "请先检查一遍，以获取当前图片。")
             return
-
+        self.set_original_from_current_button.setEnabled(False)
+        QMessageBox.information(self, "设置成功", "已把参考图设置为当前状态，保存后即可生效")
         self.new_original = self.result['current_image']
 
     def remove_area(self):
