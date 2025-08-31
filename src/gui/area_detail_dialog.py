@@ -6,7 +6,7 @@ from src.core.utils import name_of_color
 
 from src.gui.qt_image_viewer import QtImageViewer
 from src.gui.area_edit_dialog import AreaEditDialog
-from src.core import AreaManager, Diff
+from src.core import area_manager, Diff
 from src.gui.threads import CheckThread
 
 class AreaDetailDialog(QDialog):
@@ -115,7 +115,7 @@ class AreaDetailDialog(QDialog):
             self.image_viewer.setImage(qimg)
 
     def open_edit_dialog(self):
-        dialog = AreaEditDialog(self, AreaManager().area(self.area_name), self.result)
+        dialog = AreaEditDialog(self, area_manager.area(self.area_name), self.result)
         dialog.exec()
 
     def on_area_name_changed(self, name):
@@ -123,7 +123,7 @@ class AreaDetailDialog(QDialog):
         self.setWindowTitle(f"区域详情: {self.area_name}")
 
     def check_area(self):
-        self.thread = CheckThread([AreaManager().area(self.area_name)])
+        self.thread = CheckThread([area_manager.area(self.area_name)])
         self.thread.finished.connect(self.on_check_thread_finished)
 
         self.check_action.setEnabled(False)

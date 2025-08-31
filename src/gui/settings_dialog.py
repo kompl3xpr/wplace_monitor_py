@@ -1,6 +1,6 @@
 from PyQt6.QtWidgets import *
 from PyQt6.QtCore import Qt
-from src.core import Settings
+from src.core import settings
 
 class SettingsDialog(QDialog):
     def __init__(self, parent):
@@ -55,7 +55,6 @@ class SettingsDialog(QDialog):
         button_layout.addWidget(cancel_button)
 
         # 加载初始值
-        settings = Settings()
         self.check_interval_edit.setText(str(settings.check_interval_ms))
         self.wait_for_next_area_edit.setText(str(settings.wait_for_next_area_ms))
         self.check_on_boot_checkbox.setChecked(settings.check_area_when_boot)
@@ -81,7 +80,6 @@ class SettingsDialog(QDialog):
         )
 
         if reply == QMessageBox.StandardButton.Yes:
-            settings = Settings()
             # 从UI控件中获取值并保存
             try:
                 settings.check_interval_ms = int(self.check_interval_edit.text())

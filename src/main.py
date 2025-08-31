@@ -2,7 +2,7 @@ from PyQt6.QtWidgets import *
 from PyQt6.QtCore import QSharedMemory
 from PyQt6.QtGui import QFont, QFontDatabase, QIcon
 from src.gui import App
-from src.core import Settings, logger, path_manager
+from src.core import settings, logger, path_manager
 import sys
 
 def should_hide():
@@ -41,9 +41,9 @@ if __name__ == "__main__":
     if not should_hide():
         window.show()
 
-    logger().info('欢迎使用 Wplace Monitor')
+    logger.info('欢迎使用 Wplace Monitor')
     window.check_for_updates()
-    if Settings().check_area_when_boot:
+    if settings.check_area_when_boot:
         window.check_areas()
     
     app.exec()

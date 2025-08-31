@@ -1,7 +1,7 @@
 from PyQt6.QtWidgets import *
 from src.gui.area_detail_dialog import AreaDetailDialog
 from src.core.utils import format_relative_time
-from src.core import AreaManager
+from src.core import area_manager
 
 
 class AreaInfoListItemWidget(QFrame):
@@ -13,7 +13,7 @@ class AreaInfoListItemWidget(QFrame):
         self.updater = app.update_list_with_new_results
 
     def setup_info_label(self):
-        area = AreaManager().area(self.area_name)
+        area = area_manager.area(self.area_name)
         common_info = f'上次检查: {format_relative_time(area["last_check_date"]) if "last_check_date" in area else '无'}'
         if self.result is not None:
             self.info_label.setText(f"{common_info} | 异常像素: {len(self.result['diffs'])}")

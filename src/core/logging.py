@@ -24,5 +24,4 @@ def init_logger(status_bar_widget, level=logging.INFO):
     status_bar_handler.setFormatter(logging.Formatter('%(asctime)s [%(levelname)s] %(message)s'))
     logger.addHandler(status_bar_handler)
 
-def logger():
-    return logging.getLogger("wplace_monitor")
+logger = logging.getLogger("wplace_monitor")

@@ -2,7 +2,7 @@ from PyQt6.QtWidgets import *
 from PyQt6.QtCore import QTimer, QTime
 from PyQt6.QtGui import QAction, QIcon
 
-from src.core import AreaManager, init_logger, logger, Settings, path_manager
+from src.core import area_manager, init_logger, logger, settings, path_manager
 from src.gui.area_info_list import AreaInfoListItemWidget
 from src.gui.status_bar import AppStatusBar
 from src.gui.settings_dialog import SettingsDialog
@@ -16,7 +16,7 @@ class App(QMainWindow):
         super().__init__()
         self.setWindowTitle("WPlace Monitor")
         self.setGeometry(100, 100, 900, 600)
-        self.results = dict([(area['name'], None) for area in AreaManager().areas])
+        self.results = dict([(area['name'], None) for area in area_manager.areas])
         self.init_ui()
 
     def init_ui(self):
@@ -46,7 +46,7 @@ class App(QMainWindow):
         toolbar.addAction(self.check_action)
 
         self.set_checking(False)
-        self.auto_check_enabled = Settings().auto_check_enabled
+        self.auto_check_enabled = settings.auto_check_enabled
         text = "关闭自动检查" if self.auto_check_enabled else "开启自动检查"
         self.auto_check_action = QAction(text, self)
         self.auto_check_action.triggered.connect(self.toggle_auto_check)
@@ -98,7 +98,7 @@ class App(QMainWindow):
 
     def _start_auto_check_timer(self):
         self.start_check_time = QTime.currentTime()
-        self.check_timer.start(Settings().check_interval_ms)
+        self.check_timer.start(settings.check_interval_ms)
 
     def toggle_auto_check(self):
         if self.auto_check_enabled:
@@ -133,7 +133,7 @@ class App(QMainWindow):
                 QMessageBox.warning(self, '输入错误', '输入无效，请检查名字和坐标范围。')
                 return
 
-            AreaManager().add_area(name, x, y)
+            area_manager.add_area(name, x, y)
             self.update_list_with_new_results({name: None})
 
 
@@ -142,7 +142,7 @@ class App(QMainWindow):
         setting_dialog.exec()
 
     def check_areas(self):
-        logger().info('正在检查所有区域...')
+        logger.info('正在检查所有区域...')
 
         def _slot(results):
             self.check_timer.stop()
@@ -150,10 +150,10 @@ class App(QMainWindow):
             if self.auto_check_enabled:
                 self._start_auto_check_timer()
             self.set_checking(False)
-            logger().info('所有区域已检查完毕')
+            logger.info('所有区域已检查完毕')
             self.send_notification()
 
-        self.check_area_thread = CheckThread(AreaManager().areas)
+        self.check_area_thread = CheckThread(area_manager.areas)
         self.check_area_thread.finished.connect(_slot)
         self.set_checking(True)
         self.check_area_thread.start()
@@ -191,7 +191,7 @@ class App(QMainWindow):
         to_deleted = []
 
         for area_name in self.results.keys():
-            if not AreaManager().has(area_name):
+            if not area_manager.has(area_name):
                 to_deleted.append(area_name)
 
         for name in to_deleted:
@@ -227,7 +227,7 @@ class App(QMainWindow):
             self.quit_app()
 
     def quit_app(self):
-        logger().info("正在退出程序...")
+        logger.info("正在退出程序...")
         self.should_quit = True
         QApplication.quit()
 

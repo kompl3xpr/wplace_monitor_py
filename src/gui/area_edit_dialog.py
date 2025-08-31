@@ -1,6 +1,6 @@
 from PyQt6.QtWidgets import *
 from PyQt6.QtCore import Qt
-from src.core import AreaManager
+from src.core import area_manager
 from src.gui.mask_editor import MaskEditor
 
 class AreaEditDialog(QDialog):
@@ -101,7 +101,7 @@ class AreaEditDialog(QDialog):
                 QMessageBox.StandardButton.No
             )
         if reply == QMessageBox.StandardButton.Yes:
-            AreaManager().remove(self.area['name'])
+            area_manager.remove(self.area['name'])
             self.accept()
             detail_dialog: QWidget = self.parent()
             detail_dialog.close()
@@ -115,7 +115,7 @@ class AreaEditDialog(QDialog):
             QMessageBox.StandardButton.No
         )
         if reply == QMessageBox.StandardButton.Yes:
-            mng = AreaManager()
+            mng = area_manager
             old_name = self.area['name']
             new_name = self.name_input.text()
 

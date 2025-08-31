@@ -5,8 +5,8 @@ from PyQt6.QtWidgets import (QButtonGroup, QMainWindow, QWidget, QVBoxLayout,
 from PyQt6.QtGui import QPixmap, QImage, QPainter, QColor, QPen, QPalette
 from PyQt6.QtCore import Qt, QPoint
 
-# 假设 AreaManager 和 path_manager 已经存在并正确导入
-from src.core import AreaManager, path_manager
+# 假设 area_manager 和 path_manager 已经存在并正确导入
+from src.core import path_manager
 
 class MaskEditor(QMainWindow):
     def __init__(self, parent, area_name: str):

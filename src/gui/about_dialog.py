@@ -146,7 +146,7 @@ class AboutDialog(QDialog):
 
 
     def exec_updater(self):
-        logger().info("正在执行安装程序...")
+        logger.info("正在执行安装程序...")
         self.updater_thread = UpdaterThread()
         self.updater_thread.finished.connect(self._exec_updater)
         self.updater_thread.start()
@@ -174,11 +174,11 @@ class AboutDialog(QDialog):
             self.parent().quit_app()  # 假设你的主窗口有一个 quit_app 方法
             
         except requests.exceptions.RequestException as e:
-            logger().error(f"下载更新文件失败: {e}")
+            logger.error(f"下载更新文件失败: {e}")
             QMessageBox.critical(self, "更新失败", f"下载更新文件失败。\n错误信息: {e}")
             
         except Exception as e:
-            logger().error(f"更新过程中发生错误: {e}")
+            logger.error(f"更新过程中发生错误: {e}")
             QMessageBox.critical(self, "更新失败", f"更新过程中发生未知错误。\n错误信息: {e}")
         finally:
             self.progress.close()
