@@ -213,6 +213,7 @@ class App(QMainWindow):
                 self.hide()
 
     def show_window(self):
+        self.update_list()
         self.show()
 
     def confirm_quit_app(self):
