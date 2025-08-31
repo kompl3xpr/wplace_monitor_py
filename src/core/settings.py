@@ -1,6 +1,7 @@
 import tomllib
 import tomli_w
 import cattrs
+import sys
 from src.core.logging import logger
 from src.core.fs import app_path
 from dataclasses import dataclass, asdict, field
@@ -33,7 +34,7 @@ class Settings:
 
         except Exception as e:
             logger().error(f"无法加载设置：{e}")
-            exit(-1)
+            sys.exit(-1)
 
     def save(self):
         with open(app_path().get("data/settings.toml"), "wb") as f:
