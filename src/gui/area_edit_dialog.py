@@ -101,7 +101,7 @@ class AreaEditDialog(QDialog):
                 QMessageBox.StandardButton.No
             )
         if reply == QMessageBox.StandardButton.Yes:
-            area_manager.remove(self.area['name'])
+            area_manager().remove(self.area['name'])
             self.accept()
             detail_dialog: QWidget = self.parent()
             detail_dialog.close()
@@ -115,7 +115,7 @@ class AreaEditDialog(QDialog):
             QMessageBox.StandardButton.No
         )
         if reply == QMessageBox.StandardButton.Yes:
-            mng = area_manager
+            mng = area_manager()
             old_name = self.area['name']
             new_name = self.name_input.text()
 

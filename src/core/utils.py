@@ -1,4 +1,26 @@
 import datetime
+import sys
+
+def parse_sys_args() -> dict[str, str | bool]:
+    args = sys.argv[1:]
+    result = {}
+    current_key = None
+    current_values = []
+    
+    for arg in args:
+        if arg.startswith('-'):
+            if current_key is not None:
+                result[current_key] = ' '.join(current_values) if current_values else True
+                current_values = []
+            
+            current_key = arg.lstrip('-')
+        else:
+            current_values.append(arg)
+    
+    if current_key is not None:
+        result[current_key] = ' '.join(current_values) if current_values else True
+    
+    return result
 
 COLORS = {
     (0, 0, 0, 255): '黑色(black)',

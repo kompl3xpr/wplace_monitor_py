@@ -2,7 +2,7 @@ import sys
 import os
 from pathlib import Path
 
-class PathManager:
+class AppPath:
     def __init__(self):
         workspace = Path(__file__).resolve().parent.parent.parent
         if getattr(sys, 'frozen', False):
@@ -20,4 +20,7 @@ class PathManager:
     def get_mask_image(self, area_name: str):
         return self.get(f"data/masks/{area_name}.png")
 
-path_manager = PathManager()
+_app_path = AppPath()
+
+def app_path() -> AppPath:
+    return _app_path

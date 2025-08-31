@@ -6,16 +6,16 @@ import datetime
 from src.core.settings import settings
 from src.core.logging import logger
 from src.core.area import area_manager, fetch_current_image
-from src.core.fs import path_manager
+from src.core.fs import app_path
 
 Diff = namedtuple("Diff", ["x", "y", "original", "current"])
 
 def get_original_image(area: dict):
-    return Image.open(path_manager.get(f"data/originals/{area['name']}.png")).convert("RGBA")
+    return Image.open(app_path().get(f"data/originals/{area['name']}.png")).convert("RGBA")
 
 
 def get_mask_image(area: dict):
-    return Image.open(path_manager.get(f"data/masks/{area['name']}.png")).convert("L")
+    return Image.open(app_path().get(f"data/masks/{area['name']}.png")).convert("L")
 
 
 class CurrentImageFetcher:
@@ -31,7 +31,7 @@ class CurrentImageFetcher:
         y = area["position"]["y"]
 
         if (x, y) in self._cache:
-            logger.info(f'从缓存中找到 `{area["name"]}` 所在区块')
+            logger().info(f'从缓存中找到 `{area["name"]}` 所在区块')
             self._is_last_from_cache = True
             return self._cache[(x, y)]
 
@@ -108,22 +108,22 @@ async def monitor_all(areas: list[dict]):
     fetcher = CurrentImageFetcher()
     for i, area in enumerate(areas):
         if area['ignored']:
-            logger.warning(f'已跳过对 {area["name"]} 的检查')
+            logger().warning(f'已跳过对 {area["name"]} 的检查')
             continue
 
         failed = False
         try:
             results[area["name"]] = await _monitor_one(fetcher, area)
         except Exception as e:
-            logger.warning(f'检查 {area["name"]} 失败')
+            logger().warning(f'检查 {area["name"]} 失败')
             failed = True
         if i < len(areas) - 1:
-            wait_ms = settings.wait_for_next_area_ms
+            wait_ms = settings().checker.wait_req_ms
             if failed or not fetcher.is_last_from_cache():
-                logger.info(f'等待 {wait_ms}ms 后进行下次网络请求...')
+                logger().info(f'等待 {wait_ms}ms 后进行下次网络请求...')
                 await asyncio.sleep(wait_ms / 1000)
 
-    area_manager.save()
+    area_manager().save()
     return results
 
 async def _monitor_one(fetcher: CurrentImageFetcher, area: dict) -> dict:
@@ -132,9 +132,9 @@ async def _monitor_one(fetcher: CurrentImageFetcher, area: dict) -> dict:
     original_image = get_original_image(area)
     mask_image = get_mask_image(area)
 
-    logger.info(f'正在检查异常...')
+    logger().info(f'正在检查异常...')
     diffs = compute_differences(original_image, current_image, mask_image)
-    logger.info(f'正在生成结果展示图...')
+    logger().info(f'正在生成结果展示图...')
     diff_image = draw_differences(mask_image, diffs)
     result = {
         "diffs": diffs,

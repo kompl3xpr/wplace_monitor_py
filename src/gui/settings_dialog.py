@@ -21,7 +21,7 @@ class SettingsDialog(QDialog):
         check_layout.addWidget(check_label)
         check_layout.addWidget(self.check_interval_edit)
         
-        # wait_for_next_area_ms
+        # wait_req_ms
         wait_layout = QHBoxLayout()
         wait_label = QLabel("网络请求间隔 (毫秒, 过小会 ban IP):")
         self.wait_for_next_area_edit = QLineEdit()
@@ -29,7 +29,7 @@ class SettingsDialog(QDialog):
         wait_layout.addWidget(wait_label)
         wait_layout.addWidget(self.wait_for_next_area_edit)
 
-        # check_area_when_boot
+        # at_startup
         self.check_on_boot_checkbox = QCheckBox("启动时立即检查")
         self.auto_check_enabled_checkbox = QCheckBox("默认开启自动检查")
 
@@ -55,11 +55,11 @@ class SettingsDialog(QDialog):
         button_layout.addWidget(cancel_button)
 
         # 加载初始值
-        self.check_interval_edit.setText(str(settings.check_interval_ms))
-        self.wait_for_next_area_edit.setText(str(settings.wait_for_next_area_ms))
-        self.check_on_boot_checkbox.setChecked(settings.check_area_when_boot)
-        self.auto_check_enabled_checkbox.setChecked(settings.auto_check_enabled)
-        self.notification_volume_slider.setValue(settings.notification_volume)
+        self.check_interval_edit.setText(str(settings().checker.interval_ms))
+        self.wait_for_next_area_edit.setText(str(settings().checker.wait_req_ms))
+        self.check_on_boot_checkbox.setChecked(settings().checker.at_startup)
+        self.auto_check_enabled_checkbox.setChecked(settings().checker.auto)
+        self.notification_volume_slider.setValue(settings().notification.volume)
 
         main_layout.addLayout(check_layout)
         main_layout.addLayout(wait_layout)
@@ -82,13 +82,13 @@ class SettingsDialog(QDialog):
         if reply == QMessageBox.StandardButton.Yes:
             # 从UI控件中获取值并保存
             try:
-                settings.check_interval_ms = int(self.check_interval_edit.text())
-                settings.wait_for_next_area_ms = int(self.wait_for_next_area_edit.text())
-                settings.check_area_when_boot = self.check_on_boot_checkbox.isChecked()
-                settings.auto_check_enabled = self.auto_check_enabled_checkbox.isChecked()
-                settings.notification_volume = self.notification_volume_slider.value()
+                settings().checker.interval_ms = int(self.check_interval_edit.text())
+                settings().checker.wait_req_ms = int(self.wait_for_next_area_edit.text())
+                settings().checker.at_startup = self.check_on_boot_checkbox.isChecked()
+                settings().checker.auto = self.auto_check_enabled_checkbox.isChecked()
+                settings().notification.volume = self.notification_volume_slider.value()
 
-                settings.save()
+                settings().save()
                 self.accept()
             except ValueError:
                 QMessageBox.warning(self, "输入错误", "请输入有效的数字！")

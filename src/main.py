@@ -2,13 +2,13 @@ from PyQt6.QtWidgets import *
 from PyQt6.QtCore import QSharedMemory
 from PyQt6.QtGui import QFont, QFontDatabase, QIcon
 from src.gui import App
-from src.core import settings, logger, path_manager
+from src.core.utils import parse_sys_args
+from src.core import init_settings, settings, init_logger, logger, app_path
+from src.migrations import apply_migrations, is_version_too_low
 import sys
 
-def should_hide():
-    return "-hide" in sys.argv
 
-
+SYS_ARGS = parse_sys_args()
 SHARED_MEMORY_KEY = "wplace_monitor_app_instance_key"
 
 class SingleApplication(QApplication):
@@ -21,29 +21,49 @@ class SingleApplication(QApplication):
         return self.is_running
 
 
-if __name__ == "__main__":
+def main():
+    init_logger()
+    logger().info(f"命令行参数: {SYS_ARGS}")
+
+    # 先迁移再加载设置
+    if 'migrate-from' in SYS_ARGS:
+        apply_migrations(SYS_ARGS['migrate-from'])
+    elif is_version_too_low():
+        apply_migrations()
+
+    logger().info("正在加载设置...")
+    init_settings()
+    logger().info(f"当前设置：{settings()}")
+
     app = SingleApplication(sys.argv)
         
     if app.is_already_running():
-        print("应用程序已经在运行。")
-        sys.exit(-1)
+        logger().error("应用程序已经在运行。")
+        return -1
 
-    app.setWindowIcon(QIcon(path_manager.get('assets/icon.ico'))) 
+    app.setWindowIcon(QIcon(app_path().get('assets/icon.ico'))) 
     app.setQuitOnLastWindowClosed(False)
 
-    font_id = QFontDatabase.addApplicationFont(path_manager.get("assets/font.ttf"))
+    font_id = QFontDatabase.addApplicationFont(app_path().get("assets/font.ttf"))
     font_families = QFontDatabase.applicationFontFamilies(font_id)
     if font_families:
         font = QFont(font_families[0], 14)
         app.setFont(font)
 
     window = App()
-    if not should_hide():
+    if 'hide' not in SYS_ARGS:
         window.show()
 
-    logger.info('欢迎使用 Wplace Monitor')
+    logger().info('欢迎使用 Wplace Monitor')
     window.check_for_updates()
-    if settings.check_area_when_boot:
+    if settings().checker.at_startup:
         window.check_areas()
     
-    app.exec()
+    exit_code = app.exec()
+    logger().info('正在保存设置...')
+    settings().save()
+    return exit_code
+
+
+if __name__ == "__main__":
+    exit(main())

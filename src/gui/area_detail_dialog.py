@@ -115,7 +115,7 @@ class AreaDetailDialog(QDialog):
             self.image_viewer.setImage(qimg)
 
     def open_edit_dialog(self):
-        dialog = AreaEditDialog(self, area_manager.area(self.area_name), self.result)
+        dialog = AreaEditDialog(self, area_manager().area(self.area_name), self.result)
         dialog.exec()
 
     def on_area_name_changed(self, name):
@@ -123,7 +123,7 @@ class AreaDetailDialog(QDialog):
         self.setWindowTitle(f"区域详情: {self.area_name}")
 
     def check_area(self):
-        self.thread = CheckThread([area_manager.area(self.area_name)])
+        self.thread = CheckThread([area_manager().area(self.area_name)])
         self.thread.finished.connect(self.on_check_thread_finished)
 
         self.check_action.setEnabled(False)

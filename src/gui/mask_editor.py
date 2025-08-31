@@ -5,8 +5,8 @@ from PyQt6.QtWidgets import (QButtonGroup, QMainWindow, QWidget, QVBoxLayout,
 from PyQt6.QtGui import QPixmap, QImage, QPainter, QColor, QPen, QPalette
 from PyQt6.QtCore import Qt, QPoint
 
-# 假设 area_manager 和 path_manager 已经存在并正确导入
-from src.core import path_manager
+# 假设 area_manager 和 app_path 已经存在并正确导入
+from src.core import app_path
 
 class MaskEditor(QMainWindow):
     def __init__(self, parent, area_name: str):
@@ -201,19 +201,19 @@ class MaskEditor(QMainWindow):
         self.scroll_area.verticalScrollBar().setValue(int(new_v_scroll))
 
     def open_background_image(self):
-        file_name = path_manager.get_original_image(self.area_name)
+        file_name = app_path().get_original_image(self.area_name)
         image = QImage(file_name)
         self.background_image = image.convertToFormat(QImage.Format.Format_ARGB32)
         self.update_canvas()
 
     def open_image(self):
-        file_name = path_manager.get_mask_image(self.area_name)
+        file_name = app_path().get_mask_image(self.area_name)
         image = QImage(file_name)   
         self.current_image = image.convertToFormat(QImage.Format.Format_ARGB32_Premultiplied)
         self.update_canvas()
 
     def save_image(self):
-        file_name = path_manager.get_mask_image(self.area_name)
+        file_name = app_path().get_mask_image(self.area_name)
         self.current_image.save(file_name)
         QMessageBox.information(self, "修改成功", "遮罩图片已保存。")
 

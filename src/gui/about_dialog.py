@@ -3,7 +3,7 @@ from PyQt6.QtCore import Qt
 import requests
 from packaging import version
 from src import __version__
-from src.core import logger, path_manager
+from src.core import logger, app_path
 import os
 from src.gui.threads import GithubApiThread, UpdaterThread
 
@@ -65,6 +65,7 @@ class AboutDialog(QDialog):
         main_layout.addLayout(button_layout)
 
     def check_for_updates(self, hide_other_msg=True):
+        logger().info("正在检查更新...")
         self.api_thread = GithubApiThread()
         self.api_thread.finished.connect(lambda r: self.handle_github_api_response(hide_other_msg, r))
         self.api_thread.start()
@@ -82,11 +83,11 @@ class AboutDialog(QDialog):
                 data = resp.json()
                     
                 # 获取最新版本号，通常是 'tag_name'
-                latest_version_str = data.get('tag_name')
+                self.latest_version_str = data.get('tag_name')
                 
                 # 使用 packaging.version 库进行版本比较，更健壮
                 current_version = version.parse(__version__)
-                latest_version = version.parse(latest_version_str)
+                latest_version = version.parse(self.latest_version_str)
                     
                 if latest_version > current_version:
                     # 有新版本可用
@@ -99,24 +100,29 @@ class AboutDialog(QDialog):
                         
                     if reply == QMessageBox.StandardButton.Yes:
                         self.exec_updater()
-                elif not hide_other_msg:
-                    # 已经是最新版本
-                    QMessageBox.information(
+                else:
+                    logger().info(f"正在使用最新版本 {__version__}")
+                    if not hide_other_msg:
+                        # 已经是最新版本
+                        QMessageBox.information(
+                            self,
+                            "版本信息",
+                            f"您正在使用最新版本 {__version__}。",
+                            QMessageBox.StandardButton.Ok
+                        )
+            else:
+                logger().warning("检查更新失败: 无法连接到更新服务器")
+                if not hide_other_msg:
+                    # API 请求失败，返回非 200 状态码
+                    QMessageBox.warning(
                         self,
-                        "版本信息",
-                        f"您正在使用最新版本 {__version__}。",
+                        "检查更新失败",
+                        "无法连接到更新服务器，请稍后重试。",
                         QMessageBox.StandardButton.Ok
                     )
-            elif not hide_other_msg:
-                # API 请求失败，返回非 200 状态码
-                QMessageBox.warning(
-                    self,
-                    "检查更新失败",
-                    "无法连接到更新服务器，请稍后重试。",
-                    QMessageBox.StandardButton.Ok
-                )
                 
         except requests.exceptions.Timeout:
+            logger().warning(f"检查更新失败: 网络请求超时")
             if not hide_other_msg:
                 # 请求超时
                 QMessageBox.warning(
@@ -126,6 +132,7 @@ class AboutDialog(QDialog):
                     QMessageBox.StandardButton.Ok
                 )
         except requests.exceptions.RequestException as e:
+            logger().warning(f"检查更新失败: 发生网络错误：{e}")
             if not hide_other_msg:
                 # 其他请求错误（如网络连接问题）
                 QMessageBox.warning(
@@ -135,6 +142,7 @@ class AboutDialog(QDialog):
                     QMessageBox.StandardButton.Ok
                 )
         except Exception as e:
+            logger().warning(f"检查更新失败: 发生未知错误：{e}")
             if not hide_other_msg:
                 # 其他未知错误
                 QMessageBox.warning(
@@ -146,7 +154,7 @@ class AboutDialog(QDialog):
 
 
     def exec_updater(self):
-        logger.info("正在执行安装程序...")
+        logger().info("正在执行安装程序...")
         self.updater_thread = UpdaterThread()
         self.updater_thread.finished.connect(self._exec_updater)
         self.updater_thread.start()
@@ -162,7 +170,7 @@ class AboutDialog(QDialog):
         
 
     def _exec_updater(self, exception_or_none: dict):
-        temp_dir = path_manager.get('updater_temp')
+        temp_dir = app_path().get('updater_temp')
 
         try:
             if 'exception' in exception_or_none:
@@ -174,11 +182,11 @@ class AboutDialog(QDialog):
             self.parent().quit_app()  # 假设你的主窗口有一个 quit_app 方法
             
         except requests.exceptions.RequestException as e:
-            logger.error(f"下载更新文件失败: {e}")
+            logger().error(f"下载更新文件失败: {e}")
             QMessageBox.critical(self, "更新失败", f"下载更新文件失败。\n错误信息: {e}")
             
         except Exception as e:
-            logger.error(f"更新过程中发生错误: {e}")
+            logger().error(f"更新过程中发生错误: {e}")
             QMessageBox.critical(self, "更新失败", f"更新过程中发生未知错误。\n错误信息: {e}")
         finally:
             self.progress.close()
@@ -204,6 +212,7 @@ REM copy new files
 echo Copying new files...
 xcopy "{temp_dir}\\wplace_monitor.exe" "{current_dir}\\" /y > nul
 xcopy "{temp_dir}\\_internal" "{current_dir}\\_internal" /e /i /h /y > nul
+xcopy "{temp_dir}\\assets" "{current_dir}\\assets" /e /i /h /y > nul
 
 REM clear temp files
 echo clearing temp files...
@@ -212,8 +221,8 @@ rd /s /q "{temp_dir}"
 echo finished update, rebooting...
 
 REM waiting for rebooting
-ping 127.0.0.1 -n 5 > nul
-start "" "{current_dir}\\wplace_monitor.exe"
+ping 127.0.0.1 -n 3 > nul
+start "" "{current_dir}\\wplace_monitor.exe" -migrate-from {self.latest_version_str}
 
 REM remove this script
 del "{script_path}"

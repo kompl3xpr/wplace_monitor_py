@@ -1,8 +1,8 @@
 from .check import monitor_all, Diff
 from .area import area_manager
-from .logging import init_logger, logger
-from .settings import settings
-from .fs import path_manager
+from .logging import init_logger, logger, add_status_bar_handler_to_logger
+from .settings import settings, init_settings
+from .fs import app_path
 
 __all__ = [
     'load_areas_config',
@@ -10,7 +10,9 @@ __all__ = [
     'Diff',
     'area_manager',
     'init_logger',
+    'add_status_bar_handler_to_logger',
     'logger',
+    'init_settings',
     'settings',
-    'path_manager'
+    'app_path'
 ]
