@@ -164,7 +164,7 @@ class App(QMainWindow):
             if result is None:
                 continue
             diffs = len(result['diffs'])
-            if diffs > 0:
+            if diffs > 0 and not area_manager().area(area_name)['ignored']:
                 messages.append(f'`{area_name}` 有 {diffs} 个异常像素')
 
         if len(messages) > 0:

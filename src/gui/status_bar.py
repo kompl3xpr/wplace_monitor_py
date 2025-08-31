@@ -1,5 +1,4 @@
 from PyQt6.QtWidgets import *
-from PyQt6.QtCore import Qt
 
 remaining_table = [
     (100e2, '十秒内'),
